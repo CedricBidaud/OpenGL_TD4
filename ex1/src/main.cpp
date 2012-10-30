@@ -40,28 +40,15 @@ int main(int argc, char** argv) {
     glEnable(GL_DEPTH_TEST);
     
     // Creation des ressources OpenGL
+    /** creation de la sphere **/
+    imac2gl3::Sphere mySphere(1.f, 50, 50);
     
     /** PLACEZ VOTRE CODE DE CREATION DES VBOS/VAOS/SHADERS/... ICI **/
     GLuint vbo = 0;
     glGenBuffers(1, &vbo);
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glm::vec3 pointA(0.,0.5,0.);
-		glm::vec3 pointB(-0.5,-0.5,0.);
-		glm::vec3 pointC(0.5,-0.5,0.);
-		
-		glm::vec3 colRed(1.,0.,0.);
-		glm::vec3 colGreen(0.,1.,0.);
-		glm::vec3 colBlue(0.,0.,1.);
-		
-		glm::vec3 points[] = {
-			pointA, colRed,
-			pointB, colGreen,
-			pointC, colBlue
-		};
-		//std::cout << pointA.x << std::endl;
-		glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
-		
+		glBufferData(GL_ARRAY_BUFFER, mySphere.getByteSize(), mySphere.getDataPointer(), GL_STATIC_DRAW);		
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     GLuint vao = 0;
@@ -71,30 +58,37 @@ int main(int argc, char** argv) {
     glBindVertexArray(vao);
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
-		
-		
+		glEnableVertexAttribArray(2);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			
 			glVertexAttribPointer(
 				0,
-				3,
-				GL_FLOAT,
+				mySphere.getPositionNumComponents(),
+				mySphere.getDataType(),
 				GL_FALSE,
-				2*sizeof(glm::vec3),
-				0
+				mySphere.getVertexByteSize(),
+				mySphere.getPositionOffset()
 			);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			
 			glVertexAttribPointer(
 				1,
-				3,
-				GL_FLOAT,
+				mySphere.getNormalNumComponents(),
+				mySphere.getDataType(),
 				GL_FALSE,
-				2*sizeof(glm::vec3),
-				BufferOffset(sizeof(glm::vec3))
+				mySphere.getVertexByteSize(),
+				mySphere.getNormalOffset()
 			);
+			
+			glVertexAttribPointer(
+				2,
+				mySphere.getTexCoordsNumComponents(),
+				mySphere.getDataType(),
+				GL_FALSE,
+				mySphere.getVertexByteSize(),
+				mySphere.getTexCoordsOffset()
+			);
+			
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
     glBindVertexArray(0);
     
     GLuint program = imac2gl3::loadProgram("shaders/color.vs.glsl", "shaders/color.fs.glsl");
@@ -127,7 +121,7 @@ int main(int argc, char** argv) {
 		/** DESSIN	**/
 		
 		glBindVertexArray(vao);
-			glDrawArrays(GL_TRIANGLES, 0, 3);
+			glDrawArrays(GL_TRIANGLES, 0, mySphere.getVertexCount());
 		glBindVertexArray(0);
 		
 		
