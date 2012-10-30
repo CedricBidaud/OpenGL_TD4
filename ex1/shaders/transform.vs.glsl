@@ -14,5 +14,6 @@ void main(){
 	vNormal = inVertexNormal;
 	vTexCoords = inVertexTexture;
 	
-	gl_Position = vec4(uMPVMatrix * inVertexPosition, 1.);
+	//gl_Position = vec4(uMPVMatrix * inVertexPosition, 1.);
+	gl_Position = vec4(inVertexPosition, 1.);
 }
