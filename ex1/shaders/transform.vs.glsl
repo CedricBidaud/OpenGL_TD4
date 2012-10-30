@@ -8,7 +8,11 @@ layout(location = 2) in vec2 inVertexTexture;
 out vec3 vNormal;
 out vec2 vTexCoords;
 
+uniform mat4 uMPVMatrix;
 
 void main(){
-
+	vNormal = inVertexNormal;
+	vTexCoords = inVertexTexture;
+	
+	gl_Position = vec4(uMPVMatrix * inVertexPosition, 1.);
 }

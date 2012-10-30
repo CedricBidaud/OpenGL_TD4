@@ -4,6 +4,13 @@
 #include <SDL/SDL.h>
 #include <GL/glew.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "imac2gl3/shapes/Sphere.hpp"
+
+
 static const size_t WINDOW_WIDTH = 512, WINDOW_HEIGHT = 512;
 static const size_t BYTES_PER_PIXEL = 32;
 
@@ -30,6 +37,23 @@ int main(int argc, char** argv) {
     // Creation des ressources OpenGL
     
     /** PLACEZ VOTRE CODE DE CREATION DES VBOS/VAOS/SHADERS/... ICI **/
+    GLuint vbo = 0;
+    glGenBuffers(1, &vbo);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glm::vec3 pointA(0.,0.,0.);
+		glm::vec3 pointB(1.,0.,0.);
+		glm::vec3 pointC(0.,1.,0.);
+		
+		glm::vec3 points[] = {
+			pointA,
+			pointB,
+			pointC
+		};
+		//std::cout << pointA.x << std::endl;
+		glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+		
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     // Boucle principale
     bool done = false;
@@ -67,6 +91,7 @@ int main(int argc, char** argv) {
     // Destruction des ressources OpenGL
     
     /** PLACEZ VOTRE CODE DE DESTRUCTION DES VBOS/VAOS/SHADERS/... ICI **/
+    glDeleteBuffers(1, &vbo);
     
     SDL_Quit();
     
