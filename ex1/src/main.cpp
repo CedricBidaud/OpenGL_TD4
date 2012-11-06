@@ -10,6 +10,7 @@
 
 #include "imac2gl3/shader_tools.hpp"
 #include "imac2gl3/shapes/Sphere.hpp"
+#include "imac2gl3/shapes/Cone.hpp"
 
 
 static const size_t WINDOW_WIDTH = 512, WINDOW_HEIGHT = 512;
@@ -42,6 +43,7 @@ int main(int argc, char** argv) {
     // Creation des ressources OpenGL
     /** creation de la sphere **/
     imac2gl3::Sphere mySphere(1.f, 50, 50);
+    imac2gl3::Sphere mySphere2(0.1f, 50, 50);
     
     /** PLACEZ VOTRE CODE DE CREATION DES VBOS/VAOS/SHADERS/... ICI **/
     GLuint vbo = 0;
@@ -105,6 +107,8 @@ int main(int argc, char** argv) {
     
     glm::mat4 VP = P * V;
     
+    // variablesa mouvement
+    float angle = 0.;
     
     
     // Boucle principale
@@ -113,7 +117,13 @@ int main(int argc, char** argv) {
         // Nettoyage de la fenêtre
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		glm::mat4 MVP = glm::translate(VP, glm::vec3(0, 0, -2));
+		
+		glm::mat4 MVP = glm::translate(VP, glm::vec3(0., 0., -5.f));
+		MVP = glm::rotate(MVP, angle, glm::vec3(0, 0, -1));
+		MVP = glm::translate(MVP, glm::vec3(0.,-2.,0.));
+
+		angle += 0.5;
+		
 		// Envoi de la matrice au vertex shader
 		glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, glm::value_ptr(MVP));
 
@@ -123,10 +133,7 @@ int main(int argc, char** argv) {
 		glBindVertexArray(vao);
 			glDrawArrays(GL_TRIANGLES, 0, mySphere.getVertexCount());
 		glBindVertexArray(0);
-		
-		
-		
-		
+
 		
         // Mise à jour de l'affichage
         SDL_GL_SwapBuffers();
@@ -153,6 +160,7 @@ int main(int argc, char** argv) {
             
             /** PLACEZ VOTRE CODE DE TRAITEMENT DES EVENTS ICI **/
         }
+        
     }
     
     // Destruction des ressources OpenGL
