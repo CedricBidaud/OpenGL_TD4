@@ -10,16 +10,18 @@
 
 #include "imac2gl3/shader_tools.hpp"
 #include "imac2gl3/shapes/Sphere.hpp"
-#include "imac2gl3/shapes/Cone.hpp"
+//#include "imac2gl3/shapes/Cone.hpp"
 
+#include "imac2gl3/shapes/GLShapeInstance.hpp"
+ 
 
 static const size_t WINDOW_WIDTH = 512, WINDOW_HEIGHT = 512;
 static const size_t BYTES_PER_PIXEL = 32;
-
+/*
 const GLvoid* BufferOffset(size_t offset) {
     return (const GLvoid*) offset;
 }
-
+*/
 int main(int argc, char** argv) {
     /********************************************************************
      * INITIALISATION DU PROGRAMME
@@ -46,102 +48,9 @@ int main(int argc, char** argv) {
     imac2gl3::Sphere mySphere2(0.1f, 50, 50);
     
     /** PLACEZ VOTRE CODE DE CREATION DES VBOS/VAOS/SHADERS/... ICI **/
-    GLuint vbo = 0;
-    glGenBuffers(1, &vbo);
+    GLShapeInstance sphereShape(mySphere);
+    GLShapeInstance sphereShape2(mySphere2);
     
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, mySphere.getByteSize(), mySphere.getDataPointer(), GL_STATIC_DRAW);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
-    GLuint vao = 0;
-    
-    glGenVertexArrays(1, &vao);
-    
-    glBindVertexArray(vao);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			
-			glVertexAttribPointer(
-				0,
-				mySphere.getPositionNumComponents(),
-				mySphere.getDataType(),
-				GL_FALSE,
-				mySphere.getVertexByteSize(),
-				mySphere.getPositionOffset()
-			);
-			
-			glVertexAttribPointer(
-				1,
-				mySphere.getNormalNumComponents(),
-				mySphere.getDataType(),
-				GL_FALSE,
-				mySphere.getVertexByteSize(),
-				mySphere.getNormalOffset()
-			);
-			
-			glVertexAttribPointer(
-				2,
-				mySphere.getTexCoordsNumComponents(),
-				mySphere.getDataType(),
-				GL_FALSE,
-				mySphere.getVertexByteSize(),
-				mySphere.getTexCoordsOffset()
-			);
-			
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    
-    
-    // 2eme sphere
-    
-    GLuint vbo2 = 0;
-    glGenBuffers(1, &vbo2);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-		glBufferData(GL_ARRAY_BUFFER, mySphere2.getByteSize(), mySphere2.getDataPointer(), GL_STATIC_DRAW);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
-    GLuint vao2 = 0;
-    
-    glGenVertexArrays(1, &vao2);
-    
-    glBindVertexArray(vao2);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-			
-			glVertexAttribPointer(
-				0,
-				mySphere2.getPositionNumComponents(),
-				mySphere2.getDataType(),
-				GL_FALSE,
-				mySphere2.getVertexByteSize(),
-				mySphere2.getPositionOffset()
-			);
-			
-			glVertexAttribPointer(
-				1,
-				mySphere2.getNormalNumComponents(),
-				mySphere2.getDataType(),
-				GL_FALSE,
-				mySphere2.getVertexByteSize(),
-				mySphere2.getNormalOffset()
-			);
-			
-			glVertexAttribPointer(
-				2,
-				mySphere2.getTexCoordsNumComponents(),
-				mySphere2.getDataType(),
-				GL_FALSE,
-				mySphere2.getVertexByteSize(),
-				mySphere2.getTexCoordsOffset()
-			);
-			
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
     
     GLuint program = imac2gl3::loadProgram("shaders/color.vs.glsl", "shaders/color.fs.glsl");
     if(!program){
@@ -167,34 +76,26 @@ int main(int argc, char** argv) {
         // Nettoyage de la fenêtre
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
+		angle += 0.5;
 		
 		glm::mat4 MVP = glm::translate(VP, glm::vec3(0., 0., -5.f));
 		MVP = glm::rotate(MVP, angle, glm::vec3(0, 0, -1));
 		MVP = glm::translate(MVP, glm::vec3(0.,-2.,0.));
-
-		angle += 0.5;
-		
-		// matrice 2eme sphere
-		glm::mat4 MVP2 = glm::translate(VP, glm::vec3(0., 0., -5.f));
-		MVP2 = glm::rotate(MVP2, angle, glm::vec3(0, 0, -1));
-		MVP2 = glm::translate(MVP2, glm::vec3(0.,-2.,0.));
-		MVP2 = glm::rotate(MVP2, 1.5f*angle, glm::vec3(0, 0, -1));
-		MVP2 = glm::translate(MVP2, glm::vec3(0.,-1.4,0.));
 		
 		// Envoi de la matrice au vertex shader
 		glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, glm::value_ptr(MVP));
 		
 		/** DESSIN	**/
+		sphereShape.drawShape();
 		
-		glBindVertexArray(vao);
-			glDrawArrays(GL_TRIANGLES, 0, mySphere.getVertexCount());
-		glBindVertexArray(0);
+		// matrice 2eme sphere
+
+		MVP = glm::rotate(MVP, 1.5f*angle, glm::vec3(0, 0, -1));
+		MVP = glm::translate(MVP, glm::vec3(0.,-1.4,0.));
 
 		// 2eme sphere
-		glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, glm::value_ptr(MVP2));
-		glBindVertexArray(vao2);
-			glDrawArrays(GL_TRIANGLES, 0, mySphere2.getVertexCount());
-		glBindVertexArray(0);
+		glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, glm::value_ptr(MVP));
+		sphereShape2.drawShape();
 		
         // Mise à jour de l'affichage
         SDL_GL_SwapBuffers();
@@ -227,10 +128,6 @@ int main(int argc, char** argv) {
     // Destruction des ressources OpenGL
     
     /** PLACEZ VOTRE CODE DE DESTRUCTION DES VBOS/VAOS/SHADERS/... ICI **/
-    glDeleteBuffers(1, &vbo);
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo2);
-    glDeleteVertexArrays(1, &vao2);
     
     glDeleteProgram(program);    
     
